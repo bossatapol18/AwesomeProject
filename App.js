@@ -1,63 +1,28 @@
-import { StatusBar } from 'expo-status-bar';
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import Welcome from './screens/Welcome'; //เพิ่มเข้ามา
-import Item from './component/Item';
-import NetworkScreen from './screens/NetworkScreen';
-//เรื่องStack+Navigation นำทางไปหน้านู้นหน้านี้
-import { NavigationContainer } from '@react-navigation/native';
-import HomeStack from './navigations/HomeStack';
-import BottomTab from './navigations/BottomTab';
-
-import SecondBottomTab from './navigations/SecondBottomTab';
-import { createStackNavigator } from '@react-navigation/stack';
-//CRUD
-import TodoTab from './navigations/TodoTab';
-const RootStack = createStackNavigator();
-
-
+import React, { useState, useEffect } from 'react';
+import { View, Text, ActivityIndicator} from 'react-native';
+import MainNavigation from './MainNavigation';
+import { fb } from './db_config';
 
 export default function App() {
-  return (
-    <NavigationContainer>
-             {/* <HomeStack />  */}
-             {/* <BottomTab />  */}
-             <RootStack.Navigator initialRouteName="BottomTab">
-                <RootStack.Screen 
-                    name="BottomTab" 
-                    component={BottomTab} 
-                    options={{  title: 'Main' , headerShown: false   }} 
-                    />
-
-                <RootStack.Screen 
-                    name="SecondBottomTab" 
-                    component={SecondBottomTab} 
-                    options={{  title: 'Second Tab'   }} 
-                    />    
-
-                <RootStack.Screen 
-                    name="TodoTab" 
-                    component={TodoTab} 
-                    options={{  title: 'Todo Tab'   }} 
-                    />                            
-                
-            </RootStack.Navigator>
-
-        </NavigationContainer>
-    /* { <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View> } */
-  );
+    const [loading, setLoading] = useState(true);
+    useEffect(() => {
+        setLoading(false);
+    });   
+    if(loading){
+        return (
+            <LoadingScreen />
+        );
+    }else{
+        return (               
+            <MainNavigation />    
+        );
+    }    
 }
-
-/* const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-}); */
-
-// Json ? อาเรย์ที่อยู่ในรูปแบบของสตริง
+function LoadingScreen() {    
+    return (
+        <View style={{ flex: 1, justifyContent: 'center', alignItems : 'center'  }}>
+            <Text>Loading</Text>
+            <ActivityIndicator size="large" />
+        </View>
+    );   
+}
