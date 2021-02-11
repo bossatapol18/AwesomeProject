@@ -1,5 +1,5 @@
 import { StatusBar } from 'expo-status-bar';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Welcome from './screens/Welcome'; //เพิ่มเข้ามา
 import Item from './component/Item';
@@ -18,10 +18,14 @@ const RootStack = createStackNavigator();
 import { fb } from './db_config';
 import RegisterScreen from './screens/RegisterScreen';
 import LoginScreen from './screens/LoginScreen';
+import { AuthContext, AuthContextProvider } from "./hooks/AuthContext";
+import MapTab from './navigations/MapTab';
+
 const AuthStack = createStackNavigator();
 
 export default function MainNavigation() {
-  const [user, setUser] = useState({});    
+  //const [user, setUser] = useState({}); 
+  const [user, setUser] = useContext(AuthContext);   
 
     useEffect(() => {
         const subscriber = fb.auth().onAuthStateChanged((current_user) => {            
@@ -58,7 +62,13 @@ export default function MainNavigation() {
                     name="TodoTab" 
                     component={TodoTab} 
                     options={{  title: 'Todo Tab'   }} 
-                    />                            
+                    />         
+                 <RootStack.Screen 
+                            name="MapTab" 
+                            component={MapTab} 
+                            options={{  title: 'Location and Map'   }} 
+                            />
+                   
                 
             </RootStack.Navigator>
 

@@ -1,6 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { View, Text, ActivityIndicator} from 'react-native';
 import MainNavigation from './MainNavigation';
+import { AuthContext, AuthContextProvider } from "./hooks/AuthContext";
 import { fb } from './db_config';
 
 export default function App() {
@@ -13,8 +14,10 @@ export default function App() {
             <LoadingScreen />
         );
     }else{
-        return (               
-            <MainNavigation />    
+        return (   
+            <AuthContextProvider>             
+             <MainNavigation />  
+            </AuthContextProvider>    
         );
     }    
 }

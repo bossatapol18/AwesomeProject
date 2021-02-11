@@ -1,9 +1,10 @@
-import React , { useState, useEffect } from 'react';
+import React , { useState, useEffect, useContext } from 'react';
 import { View, TouchableOpacity, FlatList, YellowBox } from 'react-native';
 import TodoItem  from '../component/TodoItem';
 import { Ionicons } from '@expo/vector-icons';
 import AsyncStorage from '@react-native-community/async-storage';
 import { fb } from '../db_config';
+import { AuthContext, AuthContextProvider } from "../hooks/AuthContext";
 
 export default function TodoScreen({ navigation }) {    
     const [todos , setTodos] = useState(
@@ -13,6 +14,7 @@ export default function TodoScreen({ navigation }) {
             { _id : '3' , completed : false,  title : "go to cinema @ 19.00"},
         ]     
     );
+    const [user, setUser] = useContext(AuthContext);
 
     useEffect(() => {               
         readTodosFirebase();
@@ -22,16 +24,17 @@ export default function TodoScreen({ navigation }) {
 
     const readTodosFirebase = async () => {
         fb.firestore().collection("todos")
-        .onSnapshot((querySnapshot) => {
-            //.get().then((querySnapshot) => {
-                const todos = querySnapshot.docs.map(doc => doc.data());
-                
-                //WRITE TO ASYNC STORAGE
-                writeTodos(todos);
+        .where("user_id", "==", user.uid)
+        // .onSnapshot((querySnapshot) 
+        .get().then((querySnapshot) => {
+            const todos = querySnapshot.docs.map(doc => doc.data());
+            
+            //WRITE TO ASYNC STORAGE
+            writeTodos(todos);
 
-                //SET STATE
-                setTodos(todos);                           
-            });            
+            //SET STATE
+            setTodos(todos);                           
+        });            
     }
 
     const removeTodosFirebase = async (new_data) => {
@@ -63,6 +66,7 @@ export default function TodoScreen({ navigation }) {
             _id : '_' + Math.random().toString(36).substr(2, 9), //RANDOM NUMBER
             title : "", //Empty String
             completed : false,
+            user_id : user.uid, 
             
         };
         //CLONE ARRAY
