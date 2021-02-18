@@ -1,12 +1,15 @@
-import React, { useState, useEffect } from 'react';
-import { View , Text,Dimensions } from 'react-native';
+import React, { useState, useEffect, useContext } from 'react';
+import { View , Text,Dimensions, YellowBox } from 'react-native';
 import * as Location from 'expo-location';
 import MapView from 'react-native-maps'; 
+import { fb } from '../db_config';
+import { AuthContext, AuthContextProvider } from "../hooks/AuthContext";
 
 export default function MapDriverScreen({ navigation }) {
     const [location, setLocation] = useState(null);
     const [errorMsg, setErrorMsg] = useState(null);    
-    useEffect(() => {        
+    useEffect(() => {  
+        YellowBox.ignoreWarnings(['Setting a timer','Possible Unhandled Promise']);      
         (async () => {
             //GET PERMISSION WITH SOME SECONDS DELAY
             let { status } = await Location.requestPermissionsAsync();
@@ -23,6 +26,19 @@ export default function MapDriverScreen({ navigation }) {
             }
         })();    
     },[]);
+    const [user, setUser] = useContext(AuthContext);       
+    const writeDriverLocationFirebase = async (new_data) => {
+        fb.firestore().collection("driver_locations")
+            .doc(new_data.user_id)
+            .set(new_data)
+            .then(function() {
+                console.log("Firestore successfully written!");
+            })
+            .catch(function(error) {
+                console.error("Error writing document: ", error);
+            });
+    }
+
 
     return (
         <View style={{ flex: 1 , flexDirection : 'column' }}>
@@ -54,10 +70,14 @@ export default function MapDriverScreen({ navigation }) {
                                 if(event.nativeEvent.coordinate){
                                     let new_location = {
                                         coords : event.nativeEvent.coordinate,
-                                        mocked : event.nativeEvent.coordinate.isFromMockProvider,
+                                        mocked : false,
                                         timestamp : event.nativeEvent.coordinate.timestamp,
+                                        user_id : user.uid,
                                     };
                                     setLocation(new_location);
+                                     //SET WRITE TO FIREBASE               
+                                     writeDriverLocationFirebase(new_location);
+
                                 }
                             }}                                                               
                             >                            
